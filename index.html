@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mobile Dialogue</title>
+  <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+  <main class="screen">
+    <section class="view dialogue-list-view" id="dialogueListView">
+      <h1 class="title">Выберите диалог</h1>
+      <p class="subtitle">Затем можно прослушать его целиком или сыграть одну из ролей.</p>
+      <div class="dialogue-list" id="dialogueList"></div>
+    </section>
+
+    <section class="view player-view" id="playerView" hidden>
+      <header class="player-header">
+        <button class="back-button" type="button" id="backToDialogues" aria-label="Вернуться к списку диалогов">← Назад</button>
+        <div class="player-heading">
+          <h1 class="player-title" id="playerTitle"></h1>
+          <span class="player-progress" id="playerProgress"></span>
+        </div>
+      </header>
+      <div class="dialogue-player-content" id="dialoguePlayerContent"></div>
+
+    <footer class="toolbar">
+      <div class="role-picker" role="group" aria-label="Выберите свою роль">
+        <span class="role-label">Ваша роль</span>
+        <button class="role-button" type="button" data-role="mia" aria-pressed="true">Mia</button>
+        <button class="role-button" type="button" data-role="daniel" aria-pressed="false">Daniel</button>
+      </div>
+      <div class="controls" aria-label="Управление диалогом">
+        <button class="control-button" type="button" id="startRolePlay">Начать диалог</button>
+        <button class="control-button" type="button" id="playAll">Play dialogue</button>
+        <button class="control-button secondary" type="button" id="stopAudio">Stop</button>
+        <button class="control-button secondary" type="button" id="toggleTranslation" aria-expanded="false">Показать перевод</button>
+      </div>
+      <p class="status" id="voiceStatus" aria-live="polite"></p>
+    </footer>
+    </section>
+  </main>
+
+  <script src="src/dialogues.js"></script>
+  <script src="src/text-comparison.js"></script>
+  <script src="src/app.js"></script>
+</body>
+</html>
