@@ -11,7 +11,23 @@
     <section class="view dialogue-list-view" id="dialogueListView">
       <h1 class="title">Выберите диалог</h1>
       <p class="subtitle">Затем можно прослушать его целиком или сыграть одну из ролей.</p>
+      <button class="control-button import-open-button" type="button" id="openImport">+ Загрузить JSON</button>
       <div class="dialogue-list" id="dialogueList"></div>
+    </section>
+
+    <section class="view import-view" id="importView" hidden>
+      <header class="player-header">
+        <button class="back-button" type="button" id="backFromImport">← Назад</button>
+        <h1 class="player-title">Загрузка диалога</h1>
+      </header>
+      <div class="import-content">
+        <p class="import-help">Вставьте JSON одного диалога. Он сохранится только в этом браузере.</p>
+        <button class="control-button secondary" type="button" id="copyJsonExample">Скопировать валидный JSON</button>
+        <label class="json-label" for="dialogueJson">JSON диалога</label>
+        <textarea class="json-input" id="dialogueJson" spellcheck="false" placeholder="Вставьте JSON сюда"></textarea>
+        <button class="control-button" type="button" id="saveDialogueJson">Сохранить диалог</button>
+        <p class="import-status" id="importStatus" aria-live="polite"></p>
+      </div>
     </section>
 
     <section class="view player-view" id="playerView" hidden>
@@ -27,8 +43,7 @@
     <footer class="toolbar">
       <div class="role-picker" role="group" aria-label="Выберите свою роль">
         <span class="role-label">Ваша роль</span>
-        <button class="role-button" type="button" data-role="mia" aria-pressed="true">Mia</button>
-        <button class="role-button" type="button" data-role="daniel" aria-pressed="false">Daniel</button>
+        <span class="role-buttons" id="roleButtons"></span>
       </div>
       <div class="controls" aria-label="Управление диалогом">
         <button class="control-button" type="button" id="startRolePlay">Начать диалог</button>
