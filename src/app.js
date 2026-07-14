@@ -191,6 +191,17 @@ function clearActiveMessage() {
   allMessages.forEach((message) => message.classList.remove("is-speaking", "is-listening"));
 }
 
+function scrollToMessage(message) {
+  const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  window.requestAnimationFrame(() => {
+    message.scrollIntoView({
+      behavior: reduceMotion ? "auto" : "smooth",
+      block: "center",
+      inline: "nearest",
+    });
+  });
+}
+
 function stopRecognition() {
   if (!currentRecognition) return;
   currentRecognition.onend = null;
@@ -202,7 +213,7 @@ function stopRecognition() {
   currentRecognition = null;
 }
 
-function showAnswerResult(message, transcript, comparison) {
+function showAnswerResult(message, transcript, comparison, onRetry) {
   let result = message.querySelector(".answer-result");
   if (!result) {
     result = document.createElement("p");
@@ -212,6 +223,18 @@ function showAnswerResult(message, transcript, comparison) {
   result.className = `answer-result ${comparison.isCorrect ? "correct" : "incorrect"}`;
   const similarityPercent = Math.round(comparison.similarity * 100);
   result.textContent = `${comparison.isCorrect ? "✓ Реплика засчитана." : "Попробуйте точнее."} Распознано: “${transcript}”. Совпадение: ${similarityPercent}%.`;
+  if (!comparison.isCorrect && onRetry) {
+    const retryButton = document.createElement("button");
+    retryButton.className = "retry-answer-button";
+    retryButton.type = "button";
+    retryButton.textContent = "Повторить фразу";
+    retryButton.addEventListener("click", () => {
+      if (!isRolePlayActive) return;
+      retryButton.remove();
+      onRetry();
+    }, { once: true });
+    result.append(" ", retryButton);
+  }
 }
 
 function updateProgressUI(dialogueId) {
@@ -268,6 +291,7 @@ function listenToMessage(message, index) {
 
   clearActiveMessage();
   message.classList.add("is-listening");
+  scrollToMessage(message);
   setStatus(`Ваш ход (${message.querySelector(".speaker").textContent}). Говорите по-английски…`);
 
   recognition.onresult = (event) => {
@@ -284,10 +308,15 @@ function listenToMessage(message, index) {
     currentRecognition = null;
     message.classList.remove("is-listening");
     const comparison = compareAnswer(message.querySelector(".text").textContent, transcript);
-    showAnswerResult(message, transcript.trim(), comparison);
-    if (comparison.isCorrect) saveSuccessfulLine(message);
-    setStatus(comparison.isCorrect ? "Реплика принята." : "Реплика распознана — сравнение показано под сообщением.");
-    window.setTimeout(() => processRolePlayLine(index + 1), 650);
+    showAnswerResult(message, transcript.trim(), comparison, () => listenToMessage(message, index));
+    scrollToMessage(message);
+    if (comparison.isCorrect) {
+      saveSuccessfulLine(message);
+      setStatus("Реплика принята.");
+      window.setTimeout(() => processRolePlayLine(index + 1), 650);
+    } else {
+      setStatus("Совпадение меньше 85%. Нажмите «Повторить фразу» и попробуйте ещё раз.");
+    }
   };
 
   recognition.onerror = (event) => {
@@ -449,6 +478,7 @@ function speakMessage(message, onEnd) {
   utterance.onstart = () => {
     clearActiveMessage();
     message.classList.add("is-speaking");
+    scrollToMessage(message);
   };
 
   utterance.onend = () => {

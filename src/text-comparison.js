@@ -80,7 +80,7 @@ function compareAnswer(expected, actual) {
   });
 
   const similarity = Math.max(0, 1 - distance / comparedLength);
-  return { distance, similarity, isCorrect: similarity > 0.9 };
+  return { distance, similarity, isCorrect: similarity >= 0.85 };
 }
 
 window.compareAnswer = compareAnswer;
