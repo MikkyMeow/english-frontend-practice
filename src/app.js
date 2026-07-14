@@ -1,5 +1,6 @@
 const PROGRESS_STORAGE_KEY = "english-trainer-progress-v1";
 const CUSTOM_DIALOGUES_STORAGE_KEY = "english-trainer-custom-dialogues-v1";
+const VOICE_SETTINGS_STORAGE_KEY = "english-trainer-voice-settings-v1";
 const JSON_EXAMPLE = {
   id: "weekend-plans",
   title: "Планы на выходные",
@@ -155,6 +156,8 @@ const importStatus = document.querySelector("#importStatus");
 const toggleTranslationButton = document.querySelector("#toggleTranslation");
 const translations = [...document.querySelectorAll(".translation")];
 const voiceStatus = document.querySelector("#voiceStatus");
+const toggleVoiceSettingsButton = document.querySelector("#toggleVoiceSettings");
+const voiceSettingsPanel = document.querySelector("#voiceSettingsPanel");
 const synth = window.speechSynthesis;
 let voices = [];
 let preferredVoices = [];
@@ -164,6 +167,17 @@ let isRolePlayActive = false;
 let currentRecognition = null;
 let selectedUserRole = null;
 let currentDialogueId = null;
+
+function loadVoiceSettings() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(VOICE_SETTINGS_STORAGE_KEY));
+    return stored && typeof stored === "object" && !Array.isArray(stored) ? stored : {};
+  } catch (error) {
+    return {};
+  }
+}
+
+let voiceSettings = loadVoiceSettings();
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -337,17 +351,83 @@ function chooseVoices() {
     return;
   }
 
-  if (currentDialogueId) assignVoices(dialogueData.find((dialogue) => dialogue.id === currentDialogueId));
+  if (currentDialogueId) {
+    const dialogue = dialogueData.find((item) => item.id === currentDialogueId);
+    assignVoices(dialogue);
+    renderVoiceSettings(dialogue);
+  }
   else setStatus(preferredVoices.length > 1 ? "Using two different voices." : "Using available browser voice.");
+}
+
+function getDefaultVoiceSettings(index) {
+  return {
+    voiceURI: preferredVoices[index]?.voiceURI || preferredVoices[0]?.voiceURI || "",
+    rate: index === 0 ? 0.96 : 0.9,
+    pitch: index === 0 ? 1.08 : 0.9,
+  };
+}
+
+function getSpeakerVoiceSettings(speakerId, index) {
+  const defaults = getDefaultVoiceSettings(index);
+  const saved = voiceSettings[speakerId] || {};
+  const savedRate = Number(saved.rate);
+  const savedPitch = Number(saved.pitch);
+  return {
+    voiceURI: typeof saved.voiceURI === "string" ? saved.voiceURI : defaults.voiceURI,
+    rate: Number.isFinite(savedRate) ? Math.min(1.5, Math.max(0.5, savedRate)) : defaults.rate,
+    pitch: Number.isFinite(savedPitch) ? Math.min(1.5, Math.max(0.5, savedPitch)) : defaults.pitch,
+  };
+}
+
+function saveVoiceSettings() {
+  try {
+    localStorage.setItem(VOICE_SETTINGS_STORAGE_KEY, JSON.stringify(voiceSettings));
+  } catch (error) {
+    // Settings remain available until the page is closed if storage is unavailable.
+  }
 }
 
 function assignVoices(dialogue) {
   selectedVoices = {};
   getSpeakers(dialogue).forEach((speaker, index) => {
-    selectedVoices[speaker.id] = preferredVoices[index] || preferredVoices[0] || null;
+    const settings = getSpeakerVoiceSettings(speaker.id, index);
+    selectedVoices[speaker.id] = preferredVoices.find((voice) => voice.voiceURI === settings.voiceURI)
+      || preferredVoices[index]
+      || preferredVoices[0]
+      || null;
   });
   const assigned = Object.values(selectedVoices).filter(Boolean);
   setStatus(assigned.length > 1 && assigned[0].name !== assigned[1].name ? "Using two different voices." : "Using available browser voice.");
+}
+
+function renderVoiceSettings(dialogue) {
+  if (!dialogue) return;
+  const speakers = getSpeakers(dialogue);
+  voiceSettingsPanel.innerHTML = speakers.map((speaker, index) => {
+    const settings = getSpeakerVoiceSettings(speaker.id, index);
+    const assignedVoice = selectedVoices[speaker.id];
+    return `
+      <fieldset class="voice-settings-card" data-voice-speaker="${escapeHTML(speaker.id)}">
+        <legend>${escapeHTML(speaker.name)}</legend>
+        <label class="voice-setting-label">
+          <span>Голос</span>
+          <select class="voice-select" data-voice-setting="voiceURI" ${preferredVoices.length ? "" : "disabled"}>
+            ${preferredVoices.length ? preferredVoices.map((voice) => `
+              <option value="${escapeHTML(voice.voiceURI)}" ${voice.voiceURI === assignedVoice?.voiceURI ? "selected" : ""}>${escapeHTML(voice.name)} (${escapeHTML(voice.lang)})</option>
+            `).join("") : '<option value="">Нет доступных голосов</option>'}
+          </select>
+        </label>
+        <label class="voice-setting-label range-setting">
+          <span>Скорость <output>${settings.rate.toFixed(2)}</output></span>
+          <input type="range" min="0.5" max="1.5" step="0.05" value="${settings.rate}" data-voice-setting="rate">
+        </label>
+        <label class="voice-setting-label range-setting">
+          <span>Тембр <output>${settings.pitch.toFixed(2)}</output></span>
+          <input type="range" min="0.5" max="1.5" step="0.05" value="${settings.pitch}" data-voice-setting="pitch">
+        </label>
+      </fieldset>
+    `;
+  }).join("");
 }
 
 function speakMessage(message, onEnd) {
@@ -360,9 +440,10 @@ function speakMessage(message, onEnd) {
   const speaker = message.dataset.speaker;
   const activeDialogueData = dialogueData.find((dialogue) => dialogue.id === currentDialogueId);
   const speakerIndex = activeDialogueData ? getSpeakers(activeDialogueData).findIndex((item) => item.id === speaker) : 0;
+  const settings = getSpeakerVoiceSettings(speaker, Math.max(0, speakerIndex));
   utterance.lang = "en-US";
-  utterance.rate = speakerIndex === 0 ? 0.96 : 0.9;
-  utterance.pitch = speakerIndex === 0 ? 1.08 : 0.9;
+  utterance.rate = settings.rate;
+  utterance.pitch = settings.pitch;
   utterance.voice = selectedVoices[speaker] || null;
 
   utterance.onstart = () => {
@@ -443,6 +524,7 @@ function openDialogue(dialogueId, title) {
   currentDialogueId = dialogueId;
   setupRoleButtons(activeDialogueData);
   assignVoices(activeDialogueData);
+  renderVoiceSettings(activeDialogueData);
   updateProgressUI(dialogueId);
   setStatus("");
   dialogueListView.hidden = true;
@@ -553,6 +635,29 @@ toggleTranslationButton.addEventListener("click", () => {
   });
   toggleTranslationButton.setAttribute("aria-expanded", String(shouldShow));
   toggleTranslationButton.textContent = shouldShow ? "Скрыть перевод" : "Показать перевод";
+});
+
+toggleVoiceSettingsButton.addEventListener("click", () => {
+  const shouldShow = toggleVoiceSettingsButton.getAttribute("aria-expanded") === "false";
+  voiceSettingsPanel.hidden = !shouldShow;
+  toggleVoiceSettingsButton.setAttribute("aria-expanded", String(shouldShow));
+  toggleVoiceSettingsButton.textContent = shouldShow ? "Скрыть настройки" : "Настройки голосов";
+});
+
+voiceSettingsPanel.addEventListener("input", (event) => {
+  const control = event.target.closest("[data-voice-setting]");
+  if (!control) return;
+  const card = control.closest("[data-voice-speaker]");
+  const speakerId = card.dataset.voiceSpeaker;
+  const dialogue = dialogueData.find((item) => item.id === currentDialogueId);
+  const speakerIndex = getSpeakers(dialogue).findIndex((speaker) => speaker.id === speakerId);
+  const current = getSpeakerVoiceSettings(speakerId, speakerIndex);
+  const key = control.dataset.voiceSetting;
+  current[key] = key === "voiceURI" ? control.value : Number(control.value);
+  voiceSettings[speakerId] = current;
+  saveVoiceSettings();
+  assignVoices(dialogue);
+  if (control.type === "range") control.closest("label").querySelector("output").textContent = Number(control.value).toFixed(2);
 });
 
 if ("speechSynthesis" in window) {

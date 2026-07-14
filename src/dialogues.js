@@ -1407,6 +1407,134 @@ window.DIALOGUES = [
       }
     ]
   },
+  {
+    "id": "javascript-prototypes-core",
+    "title": "Прототипы в JavaScript",
+    "description": "Emma и Liam обсуждают основные принципы работы прототипов в JavaScript",
+    "ariaLabel": "JavaScript prototypes core concepts dialogue",
+    "lines": [
+      {
+        "speaker": "emma",
+        "name": "Emma",
+        "text": "What is a prototype in JavaScript?",
+        "translation": "Что такое прототип в JavaScript?"
+      },
+      {
+        "speaker": "liam",
+        "name": "Liam",
+        "text": "A prototype is an object that another object can use as a source of inherited properties.",
+        "translation": "Прототип — это объект, который другой объект может использовать как источник унаследованных свойств."
+      },
+      {
+        "speaker": "emma",
+        "name": "Emma",
+        "text": "Does JavaScript copy those properties into the new object?",
+        "translation": "JavaScript копирует эти свойства в новый объект?"
+      },
+      {
+        "speaker": "liam",
+        "name": "Liam",
+        "text": "No. The object keeps a link to its prototype and delegates property searches to it.",
+        "translation": "Нет. Объект сохраняет ссылку на свой прототип и передаёт ему поиск свойств."
+      },
+      {
+        "speaker": "emma",
+        "name": "Emma",
+        "text": "What happens when a property is not found on the object itself?",
+        "translation": "Что происходит, когда свойство не найдено в самом объекте?"
+      },
+      {
+        "speaker": "liam",
+        "name": "Liam",
+        "text": "JavaScript searches the prototype, then its prototype, and continues through the prototype chain.",
+        "translation": "JavaScript проверяет прототип, затем его прототип и продолжает поиск по цепочке прототипов."
+      },
+      {
+        "speaker": "emma",
+        "name": "Emma",
+        "text": "Where does the prototype chain end?",
+        "translation": "Где заканчивается цепочка прототипов?"
+      },
+      {
+        "speaker": "liam",
+        "name": "Liam",
+        "text": "It ends at null, which means that there is no next prototype to search.",
+        "translation": "Она заканчивается значением null, которое означает, что следующего прототипа для поиска нет."
+      },
+      {
+        "speaker": "emma",
+        "name": "Emma",
+        "text": "Do most ordinary objects share a common prototype?",
+        "translation": "У большинства обычных объектов есть общий прототип?"
+      },
+      {
+        "speaker": "liam",
+        "name": "Liam",
+        "text": "Yes. Their chains usually include the standard object prototype near the top.",
+        "translation": "Да. Обычно их цепочки включают стандартный прототип объектов ближе к вершине."
+      },
+      {
+        "speaker": "emma",
+        "name": "Emma",
+        "text": "What is the difference between an own property and an inherited property?",
+        "translation": "В чём разница между собственным и унаследованным свойством?"
+      },
+      {
+        "speaker": "liam",
+        "name": "Liam",
+        "text": "An own property belongs directly to the object, while an inherited property is found through its prototype chain.",
+        "translation": "Собственное свойство принадлежит непосредственно объекту, а унаследованное находится через цепочку прототипов."
+      },
+      {
+        "speaker": "emma",
+        "name": "Emma",
+        "text": "Can an own property have the same name as an inherited property?",
+        "translation": "Может ли собственное свойство иметь такое же имя, как унаследованное?"
+      },
+      {
+        "speaker": "liam",
+        "name": "Liam",
+        "text": "Yes. The own property hides the inherited one, a behavior called property shadowing.",
+        "translation": "Да. Собственное свойство скрывает унаследованное. Такое поведение называется затенением свойства."
+      },
+      {
+        "speaker": "emma",
+        "name": "Emma",
+        "text": "Why are methods often stored on prototypes?",
+        "translation": "Почему методы часто хранятся в прототипах?"
+      },
+      {
+        "speaker": "liam",
+        "name": "Liam",
+        "text": "It allows many objects to share one method instead of storing a separate function in every object.",
+        "translation": "Это позволяет многим объектам совместно использовать один метод вместо хранения отдельной функции в каждом объекте."
+      },
+      {
+        "speaker": "emma",
+        "name": "Emma",
+        "text": "How are constructor functions connected to prototypes?",
+        "translation": "Как функции-конструкторы связаны с прототипами?"
+      },
+      {
+        "speaker": "liam",
+        "name": "Liam",
+        "text": "When a constructor creates an instance, the instance is linked to the object stored in the constructor prototype property.",
+        "translation": "Когда конструктор создаёт экземпляр, этот экземпляр связывается с объектом, хранящимся в свойстве прототипа конструктора."
+      },
+      {
+        "speaker": "emma",
+        "name": "Emma",
+        "text": "Do JavaScript classes use a completely different inheritance system?",
+        "translation": "Используют ли классы JavaScript совершенно другую систему наследования?"
+      },
+      {
+        "speaker": "liam",
+        "name": "Liam",
+        "text": "No. Classes provide clearer syntax, but their instance methods and inheritance still rely on prototypes.",
+        "translation": "Нет. Классы предоставляют более понятный синтаксис, но их методы экземпляров и наследование по-прежнему основаны на прототипах."
+      }
+    ]
+  },
 
 
   {
@@ -1793,7 +1921,4 @@ window.DIALOGUES = [
       }
     ]
   }
-
-
-
 ];

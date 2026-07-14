@@ -494,3 +494,68 @@ body {
   font-size: 12px;
   line-height: 1.35;
 }
+
+.voice-settings {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #dfe7ee;
+}
+
+.voice-settings[hidden] {
+  display: none;
+}
+
+.voice-settings-card {
+  min-width: 0;
+  margin: 0;
+  padding: 10px;
+  border: 1px solid #d9e3eb;
+  border-radius: 8px;
+}
+
+.voice-settings-card legend {
+  padding: 0 5px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.voice-setting-label {
+  display: grid;
+  gap: 5px;
+  margin-top: 8px;
+  color: #465461;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.voice-setting-label:first-of-type {
+  margin-top: 0;
+}
+
+.voice-select {
+  width: 100%;
+  min-height: 36px;
+  padding: 0 8px;
+  border: 1px solid #cbd7e1;
+  border-radius: 7px;
+  color: #17212b;
+  background: #ffffff;
+  font: inherit;
+}
+
+.range-setting > span {
+  display: flex;
+  justify-content: space-between;
+}
+
+.range-setting output {
+  color: #2477d4;
+  font-variant-numeric: tabular-nums;
+}
+
+.range-setting input {
+  width: 100%;
+  accent-color: #2477d4;
+}
